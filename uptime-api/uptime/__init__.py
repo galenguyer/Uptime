@@ -11,7 +11,7 @@ import requests
 from flask import Flask, jsonify
 import yaml
 
-POOL_TIME = 30 # Seconds
+POOL_TIME = 60 # Seconds
 db_lock = threading.Lock()
 ping_thread = threading.Thread()
 
@@ -53,6 +53,8 @@ def ping_sites():
         for site in read_config()['sites']:
             c = db_conn.cursor()
             key = list(site.keys())[0]
+            sql = f'CREATE TABLE IF NOT EXISTS `{key}` (time DATETIME, isup BOOLEAN);'
+            c.execute(sql)
             try:
                 code = requests.get(site[key]['url'], timeout=5).status_code
                 if 100 <= code < 400:
