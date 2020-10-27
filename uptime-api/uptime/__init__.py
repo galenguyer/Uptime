@@ -30,15 +30,15 @@ def read_config():
         with open('./data/config.yml', 'w') as config_file:
             config = yaml.dump(basic_config)
             config_file.write('---\n'+config)
-            print(config)
+            return basic_config
     else:
         if os.path.exists('./data/config.yml'):
             filename = './data/config.yml'
         else:
             filename = './data/config.yaml'
-    with open(filename, 'r') as config_file:
-        config = yaml.load(config_file.read(), Loader=yaml.FullLoader)
-        return config
+        with open(filename, 'r') as config_file:
+            config = yaml.load(config_file.read(), Loader=yaml.FullLoader)
+            return config
 
 def interrupt():
     global ping_thread
@@ -105,7 +105,9 @@ def _index():
         data = {}
         for site in read_config()['sites']:
             c = db_conn.cursor()
-            key = list(site.keys())[0]    
+            key = list(site.keys())[0]
+            sql = f'CREATE TABLE IF NOT EXISTS `{key}` (time DATETIME, isup BOOLEAN);'
+            c.execute(sql)
             sql = f'SELECT * FROM `{key}`;'
             c.execute(sql)
             data[key] = {'name': site[key]['name'],'history': [{'time': d[0], 'up': (d[1] == 1)} for d in c.fetchall()]}
