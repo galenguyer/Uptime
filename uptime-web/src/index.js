@@ -8,12 +8,12 @@ import reportWebVitals from "./reportWebVitals";
 const fetcher = (...args) => fetch(...args).then((res) => res.json());
 
 ReactDOM.render(
-  <React.StrictMode>
-    <SWRConfig value={{ fetcher }}>
-      <App />
-    </SWRConfig>{" "}
-  </React.StrictMode>,
-  document.getElementById("root")
+    <React.StrictMode>
+        <SWRConfig value={{ fetcher }}>
+            <App />
+        </SWRConfig>{" "}
+    </React.StrictMode>,
+    document.getElementById("root")
 );
 
 // If you want to start measuring performance in your app, pass a function
