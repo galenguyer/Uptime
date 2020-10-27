@@ -19,7 +19,11 @@ const Site = (props) => {
     for (let i = 0; i < 30; i++) {
         last30Days[dayjs().subtract(i, "day").format(formatString)] = [];
     }
+    let total = 0;
+    let totalCount = 0;
     data.history.forEach((element) => {
+        totalCount++;
+        if (element.up) total++;
         last30Days[dayjs(element.time).format(formatString)].push(element.up);
     });
 
@@ -39,6 +43,7 @@ const Site = (props) => {
                 {last30Ratio.map((day) => (
                     <span className={"SingleDay " + getRatioColor(day.ratio)}></span>
                 ))}
+                <p className="Average">{Math.floor((total * 10000) / totalCount) / 100}% average over 30 days</p>
             </div>
         </div>
     );

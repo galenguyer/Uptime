@@ -7,6 +7,12 @@
     border-radius: 1px;
 }
 
+.Average {
+    font-style: italic;
+    color: #bebebe;
+    margin-top: 0px;
+}
+
 .White {
     background-color: grey;
 }
