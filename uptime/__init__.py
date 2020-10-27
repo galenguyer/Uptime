@@ -4,6 +4,8 @@ import os
 import sys
 import threading
 import atexit
+import sqlite3
+import json
 
 from flask import Flask, jsonify
 import yaml
@@ -13,8 +15,8 @@ def read_config():
         print('config file not found, creating and exiting')
         basic_config = {'sites': 
             [
-                { 'site-name': { 'url': 'http://example.com' } }, 
-                { 'site-2': { 'url': 'https://example.com' } }
+                { 'sitename': { 'name': 'Site 1', 'url': 'http://example.com' } }, 
+                { 'anothersite': { 'name': 'Another Site', 'url': 'https://example.com' } }
             ] 
         }
         if not os.path.exists('./data'):
@@ -34,6 +36,13 @@ def read_config():
         return config
 
 APP = Flask(__name__)
+db_conn = sqlite3.connect('data/data.sqlite3')
+for site in read_config()['sites']:
+    c = db_conn.cursor()
+    key = list(site.keys())[0]
+    sql = f'CREATE TABLE IF NOT EXISTS `{key}` (time DATETIME, isup BOOLEAN);'
+    c.execute(sql)
+db_conn.commit()
 
 # Load file based configuration overrides if present
 #if os.path.exists(os.path.join(os.getcwd(), 'config.py')):
@@ -45,4 +54,12 @@ APP.secret_key = os.urandom(24)
 
 @APP.route('/')
 def _index():
-    return jsonify(read_config())
+    data = {}
+    for site in read_config()['sites']:
+        c = db_conn.cursor()
+        key = list(site.keys())[0]    
+        sql = f'SELECT * FROM `{key}`;'
+        c.execute(sql)
+        data[key] = [{'time': d[0], 'up': d[1]} for d in c.fetchall()]
+
+    return jsonify(data)
