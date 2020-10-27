@@ -15,6 +15,9 @@ POOL_TIME = 60 # Seconds
 db_lock = threading.Lock()
 ping_thread = threading.Thread()
 
+if not os.path.exists('./data'):
+    os.mkdir('./data')
+
 def read_config():
     if not (os.path.exists('./data/config.yml') or os.path.exists('./data/config.yaml')):
         print('config file not found, creating')
@@ -24,8 +27,6 @@ def read_config():
                 { 'anothersite': { 'name': 'Another Site', 'url': 'https://example.com' } }
             ] 
         }
-        if not os.path.exists('./data'):
-            os.mkdir('./data')
         with open('./data/config.yml', 'w') as config_file:
             config = yaml.dump(basic_config)
             config_file.write('---\n'+config)
