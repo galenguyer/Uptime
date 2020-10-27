@@ -1,0 +1,24 @@
+.SingleDay {
+    display: inline-block;
+    height: 24px;
+    width: 8px;
+    margin: 0px 2px 0px 2px;
+    border: 0px;
+    border-radius: 1px;
+}
+
+.White {
+    background-color: grey;
+}
+.Green {
+    background-color: #69d169;
+}
+.Yellow {
+    background-color: #71ff55;
+}
+.Orange {
+    background-color: #ffad14;
+}
+.Red {
+    background-color: #ff5959;
+}

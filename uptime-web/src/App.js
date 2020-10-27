@@ -12,13 +12,13 @@ function App() {
             <h1>a fucky wucky happened, oopsie</h1>
         </div>;
     }
+
     if (!data) {
         <div className="App">
             <h1>loading</h1>
         </div>;
     }
 
-    console.log(data);
     const dataList = [];
     for (const key in data) {
         dataList.push(data[key]);
