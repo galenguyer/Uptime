@@ -7,6 +7,6 @@ services:
 install:
   - "pip install -r requirements.txt"
 script:
-  - "pylint --load-plugins pylint_quotes demo"
-  - "docker build -t demo ."
+  - "pylint --load-plugins pylint_quotes uptime"
+  - "docker build -t uptime ."
 
