@@ -7,7 +7,8 @@ ADD requirements.txt /opt/demo
 
 WORKDIR /opt/demo
 
-RUN pip install -r requirements.txt
+RUN pip install --upgrade wheel pip \
+    && pip install -r requirements.txt
 
 ADD . /opt/demo
 

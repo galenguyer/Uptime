@@ -1,20 +1,48 @@
 """ A small flask Hello World """
 
 import os
-import subprocess
+import sys
+import threading
+import atexit
 
 from flask import Flask, jsonify
+import yaml
+
+def read_config():
+    if not (os.path.exists('./data/config.yml') or os.path.exists('./data/config.yaml')):
+        print('config file not found, creating and exiting')
+        basic_config = {'sites': 
+            [
+                { 'site-name': { 'url': 'http://example.com' } }, 
+                { 'site-2': { 'url': 'https://example.com' } }
+            ] 
+        }
+        if not os.path.exists('./data'):
+            os.mkdir('./data')
+        with open('./data/config.yml', 'w') as config_file:
+            config = yaml.dump(basic_config)
+            config_file.write('---\n'+config)
+            print(config)
+        sys.exit(1)
+    else:
+        if os.path.exists('./data/config.yml'):
+            filename = './data/config.yml'
+        else:
+            filename = './data/config.yaml'
+    with open(filename, 'r') as config_file:
+        config = yaml.load(config_file.read(), Loader=yaml.FullLoader)
+        return config
 
 APP = Flask(__name__)
 
 # Load file based configuration overrides if present
-if os.path.exists(os.path.join(os.getcwd(), 'config.py')):
-    APP.config.from_pyfile(os.path.join(os.getcwd(), 'config.py'))
-else:
-    APP.config.from_pyfile(os.path.join(os.getcwd(), 'config.env.py'))
+#if os.path.exists(os.path.join(os.getcwd(), 'config.py')):
+#    APP.config.from_pyfile(os.path.join(os.getcwd(), 'config.py'))
+#else:
+#    APP.config.from_pyfile(os.path.join(os.getcwd(), 'config.env.py'))
 
-APP.secret_key = APP.config['SECRET_KEY']
+APP.secret_key = os.urandom(24)
 
 @APP.route('/')
 def _index():
-    return jsonify(status=200, response="OK")
+    return jsonify(read_config())
