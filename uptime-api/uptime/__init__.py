@@ -46,13 +46,15 @@ def interrupt():
 def ping_sites():
     global commonDataStruct
     global ping_thread
+    ping_thread = threading.Timer(POOL_TIME, ping_sites, ())
+    ping_thread.start()
     with db_lock:
         db_conn = sqlite3.connect('data/data.sqlite3')
         for site in read_config()['sites']:
             c = db_conn.cursor()
             key = list(site.keys())[0]
             try:
-                code = requests.get(site[key]['url']).status_code
+                code = requests.get(site[key]['url'], timeout=5).status_code
                 if 100 <= code < 400:
                     sql = f'INSERT INTO `{key}` VALUES (datetime(\'now\'), true);'
                 else:
@@ -62,8 +64,6 @@ def ping_sites():
             c.execute(sql)
             db_conn.commit()
         db_conn.close()
-    ping_thread = threading.Timer(POOL_TIME, ping_sites, ())
-    ping_thread.start()
 
 def ping_sites_start():
     # Do initialisation stuff here
@@ -73,7 +73,7 @@ def ping_sites_start():
     ping_thread.start()
 
 
-ping_sites_start()
+ping_sites()
 # When you kill Flask (SIGTERM), clear the trigger for the next thread
 atexit.register(interrupt)
 
@@ -95,7 +95,7 @@ db_conn.close()
 
 APP.secret_key = os.urandom(24)
 
-@APP.route('/')
+@APP.route('/api/v1/data')
 def _index():
     with db_lock:
         db_conn = sqlite3.connect('data/data.sqlite3')
@@ -105,6 +105,6 @@ def _index():
             key = list(site.keys())[0]    
             sql = f'SELECT * FROM `{key}`;'
             c.execute(sql)
-            data[key] = [{'time': d[0], 'up': (d[1] == 1)} for d in c.fetchall()]
+            data[key] = {'name': site[key]['name'],'history': [{'time': d[0], 'up': (d[1] == 1)} for d in c.fetchall()]}
         db_conn.close()
         return jsonify(data)
